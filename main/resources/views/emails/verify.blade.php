@@ -6,9 +6,9 @@ Use this link to verify your email <a href="{{url('/tokens?token='.$pin)}}">{{ur
 
 And your password is {{$pass}}
 
-<x-mail::button :url="''">
+{{-- <x-mail::button :url="''">
 Button Text
-</x-mail::button>
+</x-mail::button> --}}
 
 Thank you for signing up with Pmall.<br>
 {{ config('app.name') }}
