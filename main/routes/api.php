@@ -60,6 +60,7 @@ Route::prefix("v1")->group(function() {
         Route::delete('delete-account', [ProfileController::class, 'destroy']);
     });
 
+    // get infos
     Route::middleware('auth:sanctum')->get('get-all-vendors', [UserController::class, 'all_vendors']);
     Route::middleware('auth:sanctum')->get('get-all-affiliates', [UserController::class, 'all_affiliates']);
     Route::middleware('auth:sanctum')->get('get-all-users', [UserController::class, 'all_users']);
