@@ -75,7 +75,7 @@ class AuthController extends Controller
                     ], 422);
                 }
 
-                // Mail::to($request->email)->send(new VerifyEmail($pin, $pass));
+                Mail::to($request->email)->send(new VerifyEmail($pin, $pass));
 
                 $token = $user->createToken('pmall-Vendor', ['Vendor'])->plainTextToken;
 
@@ -85,8 +85,8 @@ class AuthController extends Controller
                         'user' => User::where('id', '=', $user->id)->with('package')->get()[0],
                         'token' =>$token,
                         // test
-                        'pin' =>$pin,
-                        'pass' =>$pass,
+                        // 'pin' =>$pin,
+                        // 'pass' =>$pass,
                     ],
                     'message' => 'Registration successfull, an email has been sent for verification.'
                 ]);
@@ -143,7 +143,7 @@ class AuthController extends Controller
                     ], 422);
                 }
 
-                // Mail::to($request->email)->send(new VerifyEmail($pin, $request->password));
+                Mail::to($request->email)->send(new VerifyEmail($pin, $request->password));
 
                 $token = $user->createToken('pmall-Affiliate', ['Affiliate'])->plainTextToken;
 
@@ -153,7 +153,7 @@ class AuthController extends Controller
                         'user' => User::where('id', '=', $user->id)->with('package')->get()[0],
                         'token' =>$token,
                         // test
-                        'pin' =>$pin,
+                        // 'pin' =>$pin,
                     ],
                     'message' => 'Registration successfull, an email has been sent for verification.'
                 ], 200);
@@ -332,12 +332,12 @@ class AuthController extends Controller
             ]);
 
             if ($password_reset) {
-                // Mail::to($request->all()['email'])->send(new ResetPassword($token));
+                Mail::to($request->all()['email'])->send(new ResetPassword($token));
 
                 return response()->json([
                     'status' => true,
                     'message' => 'Please check your email for a 6 digit pin.',
-                    'pin'=>$token,
+                    // 'pin'=>$token,
                 ], 200);
             }
         } else {
