@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountPackageController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -73,6 +74,31 @@ Route::prefix("v1")->group(function() {
 
     // payment route
     Route::post('account-payment/store', [UserController::class, 'acct_pay']);
+
+    // products management
+    Route::middleware('auth:sanctum')->prefix("products")->group(function() {
+        // get all products (admin, vendor & affiliate)
+        Route::get('', [ProductController::class, 'index']);
+
+        Route::post('upload-file', [ProductController::class, 'upload']);
+
+        Route::post('create', [ProductController::class, 'create']);
+
+        Route::get('get-single', [ProductController::class, 'show']);
+
+        // update profile details
+        Route::post('update/{product}', [ProductController::class, 'update']);
+
+        // Delete Account
+        Route::delete('delete-account', [ProductController::class, 'destroy']);
+    });
+
+    // Product brand
+    Route::middleware('auth:sanctum')->get('product-brand/get-all', [ProductController::class, 'get_all_brands']);
+    Route::middleware('auth:sanctum')->post('product-brand/create', [ProductController::class, 'create_brand']);
+    // Product category
+    Route::middleware('auth:sanctum')->get('product-category/get-all', [ProductController::class, 'get_all_categories']);
+    Route::middleware('auth:sanctum')->post('product-category/create', [ProductController::class, 'create_category']);
 
 
 });
