@@ -248,9 +248,14 @@ class AuthController extends Controller
         if (!count($user)>0) {
             $user = User::where('email', '=', $request->username)->get();
             // $user = Customer::where('email', $request->username)->first();
+            if(!count($user)>0){
+                return response()->json([
+                    'status' => false,
+                    'message' => "User not found or invalid credentials"
+                ], 422);
+            }
         }
         $user = $user[0];
-
 
         if (!$user || !Hash::check($request->password, $user->password) || !$user->status=='1') {
             return response()->json([
