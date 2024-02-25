@@ -1,10 +1,11 @@
 <x-mail::message>
-# Email Verification
+# Welcome to Pmall
+{{-- # Email Verification --}}
 
 Thank you for signing up.
-Use this link to verify your email <a href="{{url('/tokens?token='.$pin)}}">{{url('/tokens?token='.$pin)}}</a>
+{{-- Use this link to verify your email <a href="{{url('/tokens?token='.$pin)}}">{{url('/tokens?token='.$pin)}}</a> --}}
 
-And your password is {{$pass}}
+your password is {{$pass}}
 
 {{-- <x-mail::button :url="''">
 Button Text
