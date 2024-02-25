@@ -263,12 +263,12 @@ class AuthController extends Controller
                 'message' => "User not found or invalid credentials"
             ], 422);
         }else{
-            if ($user->email_verified_at==null) {
-                return response()->json([
-                    'status' => false,
-                    'message' => "Email is not verified"
-                ], 422);
-            }
+            // if ($user->email_verified_at==null) {
+            //     return response()->json([
+            //         'status' => false,
+            //         'message' => "Email is not verified"
+            //     ], 422);
+            // }
             // if (!$user->isActive == 1) {
             //     return response()->json([
             //         'status' => false,
