@@ -269,12 +269,12 @@ class AuthController extends Controller
                     'message' => "Email is not verified"
                 ], 422);
             }
-            if (!$user->isActive == 1) {
-                return response()->json([
-                    'status' => false,
-                    'message' => "Sorry your account is not active, Pay for a package to acitvate your account."
-                ], 422);
-            }
+            // if (!$user->isActive == 1) {
+            //     return response()->json([
+            //         'status' => false,
+            //         'message' => "Sorry your account is not active, Pay for a package to acitvate your account."
+            //     ], 422);
+            // }
             $can = $user->user_type;
             return response()->json([
                 'status' => true,

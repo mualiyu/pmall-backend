@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('package_id')->nullable();
             $table->integer('amount');
             $table->string('method');
-            $table->string('note');
+            $table->string('note')->nullable();
             $table->longText('ref_id');
             $table->boolean('isapproved');
             $table->timestamps();

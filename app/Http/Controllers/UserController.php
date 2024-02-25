@@ -156,6 +156,11 @@ class UserController extends Controller
                     'message' => "Package not found, Try again.",
                 ], 422);
             }
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => "Failed, Try again",
+            ], 422);
         }
     }
 }
