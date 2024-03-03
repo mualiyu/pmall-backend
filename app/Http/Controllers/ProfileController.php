@@ -58,7 +58,24 @@ class ProfileController extends Controller
         if ($request->has('user_id') && !$request->user_id==null) {
             $check = User::find($request->user_id);
             if ($check) {
-                $user = User::where('id', '=', $request->user_id)->update($request->all());
+                $idd = $request->user_id;
+                // $request->offsetUnset('user_id');
+                $request->replace( $request->except('user_id') );
+                $user = User::where('id', '=', $idd)->update($request->all());
+                if ($user) {
+                    return response()->json([
+                        'status' => true,
+                        'data' => [
+                            'user' => User::where('id', '=', $idd)->get()[0],
+                        ],
+                        'message' => 'User profile update successfull.'
+                    ]);
+                } else {
+                    return response()->json([
+                        'status' => false,
+                        'message' => "Failed, Try again!"
+                    ], 422);
+                }
             }else{
                 return response()->json([
                     'status' => false,
@@ -67,21 +84,20 @@ class ProfileController extends Controller
             }
         }else{
             $user = User::where('id', '=', $request->user()->id)->update($request->all());
-        }
-
-        if ($user) {
-            return response()->json([
-                'status' => true,
-                'data' => [
-                    'user' => User::where('id', '=', $request->user()->id)->get()[0],
-                ],
-                'message' => 'User profile update successfull.'
-            ]);
-        } else {
-            return response()->json([
-                'status' => false,
-                'message' => "Failed, Try again!"
-            ], 422);
+            if ($user) {
+                return response()->json([
+                    'status' => true,
+                    'data' => [
+                        'user' => User::where('id', '=', $request->user()->id)->get()[0],
+                    ],
+                    'message' => 'User profile update successfull.'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Failed, Try again!"
+                ], 422);
+            }
         }
 
     }
