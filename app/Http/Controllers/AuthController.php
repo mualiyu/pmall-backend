@@ -27,7 +27,7 @@ class AuthController extends Controller
                     'lname' => 'required',
                     'email' => 'required|email|unique:users,email',
                     'phone' => 'required',
-                    'store_name' => 'required',
+                    'store_name' => 'required|unique:users,store_name',
                     'ref_id' => 'nullable',
                     'package_id' => 'required',
                 ]);
@@ -160,71 +160,6 @@ class AuthController extends Controller
                 //
 
             // else if not Both 🤪
-            }elseif ($is == "admin") {
-                $validator = Validator::make($request->all(), [
-                    'fname' => 'required|string',
-                    'lname' => 'required',
-                    'email' => 'required|email|unique:users,email',
-                    'username' => 'required|unique:users,username',
-                    'password' => 'required',
-                    'phone' => 'required',
-                ]);
-
-                if ($validator->fails()) {
-                    return response()->json([
-                        'status' => false,
-                        'message' => $validator->errors()->first()
-                    ], 422);
-                }
-
-                $request['user_type'] = "Admin";
-                $request['status'] = "1";
-                $request['photo'] = "assets.pmall.ng/user/default.png";
-
-                $request['my_ref_id'] = "PM-".rand(100000, 999999);
-
-                $user = User::create($request->all());
-
-                if ($user) {
-                    $verify2 =  DB::table('password_reset_tokens')->where([
-                        ['email', $request->all()['email']]
-                    ]);
-
-                    if ($verify2->exists()) {
-                        $verify2->delete();
-                    }
-                    $pin = rand(10000000, 99999999);
-                    DB::table('password_reset_tokens')
-                        ->insert(
-                            [
-                                'email' => $request->all()['email'],
-                                'token' => $pin
-                            ]
-                        );
-                }else{
-                    return response()->json([
-                        'status' => false,
-                        'message' => "Failed, Try again!"
-                    ], 422);
-                }
-
-                Mail::to($request->email)->send(new VerifyEmail($pin, $request->password));
-
-                $token = $user->createToken('pmall-Affiliate', ['Affiliate'])->plainTextToken;
-
-                return response()->json([
-                    'status' => true,
-                    'data' => [
-                        'user' => User::where('id', '=', $user->id)->with('package')->get()[0],
-                        'token' =>$token,
-                        // test
-                        // 'pin' =>$pin,
-                    ],
-                    'message' => 'Registration successfull, an email has been sent for verification.'
-                ], 200);
-                //
-
-            // else if not Both 🤪
             }else{
 
                 return response()->json([
@@ -241,6 +176,79 @@ class AuthController extends Controller
                 'message' => "Failed, End-point not found!"
             ], 422);
         }
+    }
+
+    public function register_admin(Request $request)
+    {
+            if (!$request->user()->tokenCan("Admin")) {
+                return response()->json([
+                    'status' => false,
+                    'message' => "you have to be authorized"
+                ], 422);
+            }
+            $validator = Validator::make($request->all(), [
+                'fname' => 'required|string',
+                'lname' => 'required',
+                'email' => 'required|email|unique:users,email',
+                'username' => 'required|unique:users,username',
+                'password' => 'required',
+                'phone' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $validator->errors()->first()
+                ], 422);
+            }
+
+            $request['user_type'] = "Admin";
+            $request['status'] = "1";
+            $request['photo'] = "assets.pmall.ng/user/default.png";
+
+            $request['my_ref_id'] = "PM-".rand(100000, 999999);
+
+            $user = User::create($request->all());
+
+            if ($user) {
+                $verify2 =  DB::table('password_reset_tokens')->where([
+                    ['email', $request->all()['email']]
+                ]);
+
+                if ($verify2->exists()) {
+                    $verify2->delete();
+                }
+                $pin = rand(10000000, 99999999);
+                DB::table('password_reset_tokens')
+                    ->insert(
+                        [
+                            'email' => $request->all()['email'],
+                            'token' => $pin
+                        ]
+                    );
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => "Failed, Try again!"
+                ], 422);
+            }
+
+            Mail::to($request->email)->send(new VerifyEmail($pin, $request->password));
+
+            $token = $user->createToken('pmall-Admin', ['Admin'])->plainTextToken;
+
+            return response()->json([
+                'status' => true,
+                'data' => [
+                    'user' => User::where('id', '=', $user->id)->with('package')->get()[0],
+                    'token' =>$token,
+                    // test
+                    // 'pin' =>$pin,
+                ],
+                'message' => 'Registration successfull, an email has been sent for verification.'
+            ], 200);
+            //
+
     }
 
 
