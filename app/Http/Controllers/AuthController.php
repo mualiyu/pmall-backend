@@ -330,7 +330,7 @@ class AuthController extends Controller
         }
         $user = $user[0];
 
-        if (!$user || !Hash::check($request->password, $user->password) || !$user->status=='1') {
+        if (!Hash::check($request->password, $user->password) || !$user->status=='1') {
             return response()->json([
                 'status' => false,
                 'message' => "User not found or invalid credentials"
