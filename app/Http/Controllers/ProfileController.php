@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\VerifyEmail;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class ProfileController extends Controller
 {
@@ -157,6 +162,90 @@ class ProfileController extends Controller
                 'status' => true,
                 'message' => 'Account Deleted.'
             ], 200);
+
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => trans('auth.failed')
+            ], 422);
+        }
+    }
+
+    public function Vendor_register_another(Request $request)
+    {
+
+        if ($request->user()->tokenCan("Vendor")) {
+
+            $validator = Validator::make($request->all(), [
+                'fname' => 'required',
+                'lname' => 'required',
+                'email' => 'required|email|unique:users,email',
+                'phone' => 'required',
+                // 'store_name' => 'required|unique:users,store_name',
+                // 'ref_id' => 'nullable',
+                // 'package_id' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $validator->errors()->first()
+                ], 422);
+            }
+
+            $request['user_type'] = "Vendor";
+            $request['store_id'] = $request->user()->store_id;
+            $request['store_name'] = $request->user()->store_name;
+            $request['status'] = "1";
+            $request['photo'] = "assets.pmall.ng/user/default.png";
+
+            $request['package_id'] = $request->user()->package_id;
+
+            $request['ref_id'] = $request->user()->ref_id;  //the id of the vendor that registered you
+            $request['my_ref_id'] = "PM-".rand(100000, 999999);
+
+            $pass = Str::random(8);
+
+            $request['password'] = Hash::make($pass);
+
+            $user = User::create($request->all());
+
+            if ($user) {
+                $verify2 =  DB::table('password_reset_tokens')->where([
+                    ['email', $request->all()['email']]
+                ]);
+
+                if ($verify2->exists()) {
+                    $verify2->delete();
+                }
+                $pin = rand(10000000, 99999999);
+                DB::table('password_reset_tokens')
+                    ->insert(
+                        [
+                            'email' => $request->all()['email'],
+                            'token' => $pin
+                        ]
+                    );
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => "Failed, Try again!"
+                ], 422);
+            }
+
+            Mail::to($request->email)->send(new VerifyEmail($pin, $pass));
+
+            // $token = $user->createToken('pmall-Vendor', ['Vendor'])->plainTextToken;
+
+            return response()->json([
+                'status' => true,
+                'data' => [
+                    'user' => User::where('id', '=', $user->id)->with('package')->get()[0],
+                    // 'token' =>$token,
+                ],
+                'message' => 'Registration successfull, an email has been sent for verification.'
+            ]);
+
 
         }else{
             return response()->json([

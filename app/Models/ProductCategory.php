@@ -16,7 +16,7 @@ class ProductCategory extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'store_id',
+        'category_image',
         'name',
         'description',
     ];
@@ -24,5 +24,10 @@ class ProductCategory extends Model
     public function products(): HasMany
     {
         return $this->hasMany(Product::class, 'category_id');
+    }
+
+    public function sub_categories(): HasMany
+    {
+        return $this->hasMany(ProductSubCategory::class, 'category_id');
     }
 }

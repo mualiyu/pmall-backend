@@ -5,38 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Product extends Model
+class ProductSubCategory extends Model
 {
     use HasFactory;
-
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        'store_id',
         'category_id',
-        'sub_category_id',
-        'brand_id',
         'name',
-        'image',
         'description',
-        'cost_price',
-        'selling_price',
-        'inStock',
-        'quantity',
-        'tags',
-        'status',
-        'more_images',
     ];
-
-    // brand
-    public function brand(): BelongsTo
-    {
-        return $this->belongsTo(ProductBrand::class, 'brand_id');
-    }
 
     // category
     public function category(): BelongsTo
@@ -44,10 +27,8 @@ class Product extends Model
         return $this->belongsTo(ProductCategory::class, 'category_id');
     }
 
-    // category
-    public function sub_category(): BelongsTo
+    public function products(): HasMany
     {
-        return $this->belongsTo(ProductSubCategory::class, 'sub_category_id');
+        return $this->hasMany(Product::class, 'sub_category_id');
     }
-
 }

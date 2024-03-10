@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\ProductBrand;
 use App\Models\ProductCategory;
+use App\Models\ProductSubCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -89,6 +90,7 @@ class ProductController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'category_id' => 'required',
+                'sub_category_id' => 'nullable',
                 'brand_id' => 'required',
                 'name' => 'required|string',
                 'image' => 'required',
@@ -135,10 +137,11 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        if ($request->user()->tokenCan('Vendor')) {
+        if ($request->user()->tokenCan($request->user()->user_type)) {
 
             $validator = Validator::make($request->all(), [
                 'category_id' => 'required',
+                'sub_category_id' => 'nullable',
                 'brand_id' => 'required',
                 'name' => 'required|string',
                 'image' => 'required',
@@ -185,7 +188,7 @@ class ProductController extends Controller
 
     public function show(Request $request)
     {
-        $product = Product::where('id', '=', $request->product_id)->with("brand")->with("category")->get();
+        $product = Product::where('id', '=', $request->product_id)->with("brand")->with("category")->with('sub_category')->get();
 
         if (count($product) > 0) {
             return response()->json([
@@ -228,13 +231,13 @@ class ProductController extends Controller
         }
     }
 
-    // Product brand
+    // Product brand section
     public function create_brand(Request $request)
     {
-        if ($request->user()->tokenCan('Vendor')) {
+        if ($request->user()->tokenCan('Admin')) {
 
             $validator = Validator::make($request->all(), [
-                'store_id' => 'required',
+                'brand_image' => 'nullable',
                 'name' => 'required',
                 'description' => 'nullable',
             ]);
@@ -267,6 +270,78 @@ class ProductController extends Controller
             ], 422);
         }
     }
+
+    public function update_brand(Request $request)
+    {
+        if ($request->user()->tokenCan('Admin')) {
+
+            $validator = Validator::make($request->all(), [
+                'brand_id' => 'required',
+                'brand_image' => 'nullable',
+                'name' => 'required',
+                'description' => 'nullable',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $validator->errors()->first()
+                ], 422);
+            }
+
+            $cid = $request->brand_id;
+            $data = $request->except(['brand_id']);
+            // print_r($request->except(['brand_id']));
+            // $request->replace($request->except('brand_id'));
+
+            $brand = ProductBrand::where('id', '=', $cid)->update($data);
+
+            if ($brand) {
+                return response()->json([
+                    'status' => true,
+                    'message' => "Brand has been Updated",
+                    'data' =>  ProductBrand::where('id', '=', $cid)->get()[0],
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Failed to create brand, Try again later.",
+                ], 422);
+            }
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => trans('auth.failed')
+            ], 422);
+        }
+    }
+
+    public function delete_brand(Request $request)
+    {
+        if ($request->user()->tokenCan("Admin")) {
+
+            $s = ProductBrand::where('id', '=', $request->brand_id)->delete();
+
+            if ($s) {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Brand Deleted.'
+                ], 200);
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => "Failed to delete brand, Try again later."
+                ], 422);
+            }
+
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => trans('auth.failed')
+            ], 422);
+        }
+    }
+
     public function get_all_brands(Request $request)
     {
         if ($request->user()->tokenCan($request->user()->user_type)) {
@@ -274,7 +349,7 @@ class ProductController extends Controller
             return response()->json([
                 'status' => true,
                 'data' => [
-                    'brands' => ProductBrand::where('store_id', '=', $request->store_id)->get(),
+                    'brands' => ProductBrand::all(),
                 ],
             ], 200);
 
@@ -286,12 +361,14 @@ class ProductController extends Controller
         }
     }
 
+
+    // Category section
     public function create_category(Request $request)
     {
-        if ($request->user()->tokenCan('Vendor')) {
+        if ($request->user()->tokenCan('Admin')) {
 
             $validator = Validator::make($request->all(), [
-                'store_id' => 'required',
+                'category_image' => 'nullable',
                 'name' => 'required',
                 'description' => 'nullable',
             ]);
@@ -324,6 +401,7 @@ class ProductController extends Controller
             ], 422);
         }
     }
+
     public function get_all_categories(Request $request)
     {
         if ($request->user()->tokenCan($request->user()->user_type)) {
@@ -331,7 +409,7 @@ class ProductController extends Controller
             return response()->json([
                 'status' => true,
                 'data' => [
-                    'categories' => ProductCategory::where('store_id', '=', $request->store_id)->get(),
+                    'categories' => ProductCategory::orderBy('created_at', 'ASC')->with('sub_categories')->get(),
                 ],
             ], 200);
 
@@ -343,5 +421,183 @@ class ProductController extends Controller
         }
     }
 
+    public function update_category(Request $request)
+    {
+        if ($request->user()->tokenCan('Admin')) {
 
+            $validator = Validator::make($request->all(), [
+                'category_id' => 'required',
+                'category_image' => 'nullable',
+                'name' => 'required',
+                'description' => 'nullable',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $validator->errors()->first()
+                ], 422);
+            }
+
+            $cid = $request->category_id;
+
+            // $request->replace($request->except('category_id'));
+
+            $category = ProductCategory::where('id', '=', $cid)->update($request->except(['category_id']));
+
+            if ($category) {
+                return response()->json([
+                    'status' => true,
+                    'message' => "category has been updated",
+                    'data' => ProductCategory::where('id', '=', $cid)->get()[0],
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Failed to update category, Try again later.",
+                ], 422);
+            }
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => "Un authorised user"
+            ], 422);
+        }
+    }
+
+    public function delete_category(Request $request)
+    {
+        if ($request->user()->tokenCan("Admin")) {
+
+            $s = ProductCategory::where('id', '=', $request->category_id)->delete();
+
+            if ($s) {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Category Deleted.'
+                ], 200);
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => "Failed to delete category, Try again later."
+                ], 422);
+            }
+
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => trans('auth.failed')
+            ], 422);
+        }
+    }
+
+
+    // Sub Categories Section
+    public function create_sub_category(Request $request)
+    {
+        if ($request->user()->tokenCan('Admin')) {
+
+            $validator = Validator::make($request->all(), [
+                'category_id' => 'nullable',
+                'name' => 'required',
+                'description' => 'nullable',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $validator->errors()->first()
+                ], 422);
+            }
+
+            $subcategory = ProductSubCategory::create($request->all());
+
+            if ($subcategory) {
+                return response()->json([
+                    'status' => true,
+                    'message' => "A new sub-category has been created",
+                    'data' => $subcategory,
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Failed to create sub-category, Try again later.",
+                ], 422);
+            }
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => "Unauthorised user"
+            ], 422);
+        }
+    }
+
+    public function update_sub_category(Request $request)
+    {
+        if ($request->user()->tokenCan('Admin')) {
+
+            $validator = Validator::make($request->all(), [
+                'sub_category_id' => 'required',
+                'name' => 'required',
+                'description' => 'nullable',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $validator->errors()->first()
+                ], 422);
+            }
+
+            $cid = $request->sub_category_id;
+
+            $request->replace($request->except('sub_category_id'));
+
+            $category = ProductSubCategory::where('id', '=', $cid)->update($request->except(['sub_category_id']));
+
+            if ($category) {
+                return response()->json([
+                    'status' => true,
+                    'message' => "Sub-category has been updated",
+                    'data' => ProductSubCategory::where('id', '=', $cid)->get()[0],
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Failed to update category, Try again later.",
+                ], 422);
+            }
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => "Un authorised user"
+            ], 422);
+        }
+    }
+
+    public function delete_sub_category(Request $request)
+    {
+        if ($request->user()->tokenCan("Admin")) {
+
+            $s = ProductSubCategory::where('id', '=', $request->sub_category_id)->delete();
+
+            if ($s) {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Sub-category Deleted.'
+                ], 200);
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => "Failed to delete category, Try again later."
+                ], 422);
+            }
+
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => trans('auth.failed')
+            ], 422);
+        }
+    }
 }

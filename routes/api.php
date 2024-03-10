@@ -69,6 +69,7 @@ Route::prefix("v1")->group(function() {
     Route::middleware('auth:sanctum')->get('get-all-users', [UserController::class, 'all_users']);
 
     Route::middleware('auth:sanctum')->post('add-user/{is}', [UserController::class, 'add_user']);
+    Route::middleware('auth:sanctum')->post('user/add-vendor', [ProfileController::class, 'Vendor_register_another']);
 
     // Account packages
     Route::get('account-packages/all', [AccountPackageController::class, 'get_all']);
@@ -98,9 +99,17 @@ Route::prefix("v1")->group(function() {
     // Product brand
     Route::middleware('auth:sanctum')->get('product-brand/get-all', [ProductController::class, 'get_all_brands']);
     Route::middleware('auth:sanctum')->post('product-brand/create', [ProductController::class, 'create_brand']);
+    Route::middleware('auth:sanctum')->post('product-brand/update', [ProductController::class, 'update_brand']);
+    Route::middleware('auth:sanctum')->post('product-brand/delete', [ProductController::class, 'delete_brand']);
     // Product category
     Route::middleware('auth:sanctum')->get('product-category/get-all', [ProductController::class, 'get_all_categories']);
     Route::middleware('auth:sanctum')->post('product-category/create', [ProductController::class, 'create_category']);
+    Route::middleware('auth:sanctum')->post('product-category/update', [ProductController::class, 'update_category']);
+    Route::middleware('auth:sanctum')->post('product-category/delete', [ProductController::class, 'delete_category']);
+    // Sub category
+    Route::middleware('auth:sanctum')->post('product-sub-category/create', [ProductController::class, 'create_sub_category']);
+    Route::middleware('auth:sanctum')->post('product-sub-category/update', [ProductController::class, 'update_sub_category']);
+    Route::middleware('auth:sanctum')->post('product-sub-category/delete', [ProductController::class, 'delete_sub_category']);
 
 
 });

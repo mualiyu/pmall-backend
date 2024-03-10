@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string("store_id");
             $table->unsignedBigInteger("category_id");
+            $table->unsignedBigInteger("sub_category_id")->nullable();
             $table->unsignedBigInteger("brand_id");
             $table->string("name");
             $table->string("image");
