@@ -142,7 +142,6 @@ class ProfileController extends Controller
                     'message' => "Error! file upload invalid. Try again."
                 ], 422);
             }
-
     }
 
     /**
@@ -252,6 +251,64 @@ class ProfileController extends Controller
                 'status' => false,
                 'message' => trans('auth.failed')
             ], 422);
+        }
+    }
+
+    public function hierarchy_l1(Request $request)
+    {
+        if ($request->user()->tokenCan($request->user()->user_type)) {
+            $user = User::find($request->user()->id);
+
+            $l1 = $user->downline()->get();
+
+            if(count($l1)>0){
+                return response()->json([
+                    'status' => true,
+                    'data' => [
+                        'downline' => $l1,
+                    ],
+                ], 200);
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => "No refferals",
+                ], 422);
+            }
+
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => trans('auth.failed')
+            ], 401);
+        }
+    }
+
+    public function hierarchy_all_downline(Request $request)
+    {
+        if ($request->user()->tokenCan($request->user()->user_type)) {
+            $user = User::find($request->user()->id);
+
+            $all_d = $user->allDownline()->get();
+
+            if(count($all_d)>0){
+                return response()->json([
+                    'status' => true,
+                    'data' => [
+                        'allDownline' => $all_d,
+                    ],
+                ], 200);
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => "No refferals",
+                ], 422);
+            }
+
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => trans('auth.failed')
+            ], 401);
         }
     }
 }

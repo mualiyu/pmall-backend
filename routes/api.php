@@ -2,9 +2,13 @@
 
 use App\Http\Controllers\AccountPackageController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Customer\CustomerAuthController;
+use App\Http\Controllers\Customer\CustomerProfileController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicProductController;
 use App\Http\Controllers\UserController;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -23,7 +27,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::prefix("v1")->group(function() {
+Route::prefix("v1")->group(function () {
     // No auth error
     Route::get('/error', function () {
         return response()->json([
@@ -53,14 +57,17 @@ Route::prefix("v1")->group(function() {
     // upload user images
     Route::post('upload-user-image', [ProfileController::class, 'upload']);
 
-    Route::middleware('auth:sanctum')->prefix("profile")->group(function() {
+    Route::middleware('auth:sanctum')->prefix("profile")->group(function () {
         // get profile details
         Route::get('', [ProfileController::class, 'index']);
         // update profile details
         Route::post('update', [ProfileController::class, 'update']);
-
         // Delete Account
         Route::delete('delete-account', [ProfileController::class, 'destroy']);
+
+
+        Route::get('hierarchy-l1', [ProfileController::class, 'hierarchy_l1']);
+        Route::get('hierarchy-all-downline', [ProfileController::class, 'hierarchy_all_downline']);
     });
 
     // get infos
@@ -79,7 +86,7 @@ Route::prefix("v1")->group(function() {
     Route::post('account-payment/store', [UserController::class, 'acct_pay']);
 
     // products management
-    Route::middleware('auth:sanctum')->prefix("products")->group(function() {
+    Route::middleware('auth:sanctum')->prefix("products")->group(function () {
         // get all products (admin, vendor & affiliate)
         Route::get('', [ProductController::class, 'index']);
 
@@ -111,5 +118,13 @@ Route::prefix("v1")->group(function() {
     Route::middleware('auth:sanctum')->post('product-sub-category/update', [ProductController::class, 'update_sub_category']);
     Route::middleware('auth:sanctum')->post('product-sub-category/delete', [ProductController::class, 'delete_sub_category']);
 
+
+
+
+
+
+
+    // Include the customer routes
+    require __DIR__ . '/customer.php';
 
 });

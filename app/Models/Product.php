@@ -32,6 +32,11 @@ class Product extends Model
         'more_images',
     ];
 
+    public function vendor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'store_id', 'store_id');  // Assuming 'store_id' is the vendor's user ID
+    }
+
     // brand
     public function brand(): BelongsTo
     {
@@ -49,5 +54,4 @@ class Product extends Model
     {
         return $this->belongsTo(ProductSubCategory::class, 'sub_category_id');
     }
-
 }

@@ -31,6 +31,7 @@ class User extends Authenticatable
         'photo',
         'my_ref_id',
         'description',
+
         'store_name',
         'store_id',
         'store_url',
@@ -79,6 +80,16 @@ class User extends Authenticatable
         return $this->hasMany(User::class, 'ref_id', 'my_ref_id');
     }
 
+    public function downline()
+    {
+        return $this->hasMany(User::class, 'ref_id', 'my_ref_id');
+    }
+
+    public function allDownline()
+    {
+        return $this->downline()->with('allDownline');
+    }
+
     /**
      * A user has a referrer.
      *
@@ -98,5 +109,12 @@ class User extends Authenticatable
     public function payment(): HasOne
     {
         return $this->hasOne(Payment::class, 'user_id');
+    }
+
+
+    // products
+    public function products(): HasMany
+    {
+        return $this->hasMany(product::class, 'store_id', 'store_id');
     }
 }
