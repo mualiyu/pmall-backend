@@ -50,7 +50,7 @@ class PublicProductController extends Controller
 
         $cats = ProductCategory::orderBy('created_at', "ASC")->with('sub_categories')->get();
 
-        if (count($cats)) {
+        if (count($cats) > 0) {
             return response()->json([
                 'status' => true,
                 'data' => $cats
@@ -66,14 +66,14 @@ class PublicProductController extends Controller
 
     public function get_all_products_by_category(Request $request) {
 
-        $product = Product::where('category_id', '=', $request->category_id)->get();
+        $products = Product::where('category_id', '=', $request->category_id)->get();
 
-        if (count($product)) {
-            $product = $product[0];
+        if (count($products) > 0) {
+            // $product = $product[0];
 
             return response()->json([
                 'status' => true,
-                'data' => $product
+                'data' => $products
             ], 200);
         }
         return response()->json([
@@ -85,14 +85,14 @@ class PublicProductController extends Controller
 
     public function get_all_products_by_sub_category(Request $request) {
 
-        $product = Product::where('sub_category_id', '=', $request->sub_category_id)->get();
+        $products = Product::where('sub_category_id', '=', $request->sub_category_id)->get();
 
-        if (count($product)) {
-            $product = $product[0];
+        if (count($products)) {
+            // $product = $product[0];
 
             return response()->json([
                 'status' => true,
-                'data' => $product
+                'data' => $products
             ], 200);
         }
         return response()->json([
