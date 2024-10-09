@@ -12,7 +12,7 @@ class PublicProductController extends Controller
 
         $products = Product::orderBy("created_at", 'DESC')->get();
 
-        if (count($products)) {
+        if (count($products)>0) {
             # code...
             return response()->json([
                 'status' => true,
@@ -31,7 +31,7 @@ class PublicProductController extends Controller
 
         $product = Product::where('id', '=', $request->product_id)->with('vendor')->with('brand')->with('category')->with('sub_category')->get();
 
-        if (count($product)) {
+        if (count($product)>0) {
             $product = $product[0];
 
             return response()->json([
@@ -87,7 +87,7 @@ class PublicProductController extends Controller
 
         $products = Product::where('sub_category_id', '=', $request->sub_category_id)->get();
 
-        if (count($products)) {
+        if (count($products) > 0) {
             // $product = $product[0];
 
             return response()->json([

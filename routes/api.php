@@ -121,11 +121,6 @@ Route::prefix("v1")->group(function () {
     Route::middleware('auth:sanctum')->post('product-sub-category/delete', [ProductController::class, 'delete_sub_category']);
 
 
-
-
-
-
-
     // Include the customer routes
     require __DIR__ . '/customer.php';
 
