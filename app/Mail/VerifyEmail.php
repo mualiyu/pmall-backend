@@ -15,14 +15,18 @@ class VerifyEmail extends Mailable
 
     public $pin;
     public $pass;
+    public $email;
+    public $store_name = "";
 
     /**
      * Create a new message instance.
      */
-    public function __construct($pin, $pass)
+    public function __construct($pin, $pass, $email, $store_name=null)
     {
         $this->pin = $pin;
         $this->pass = $pass;
+        $this->email = $email;
+        $this->store_name = $store_name;
     }
 
     /**

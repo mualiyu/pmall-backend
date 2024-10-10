@@ -2,10 +2,16 @@
 # Welcome to Pmall
 {{-- # Email Verification --}}
 
-{{-- Thank you for signing up. --}}
+Thank you for signing up.
 {{-- Use this link to verify your email <a href="{{url('/tokens?token='.$pin)}}">{{url('/tokens?token='.$pin)}}</a> --}}
+@if ($store_name!=null)
+Your Store Name is {{$store_name}}
+@endif
+<br>
+Username/Email: {{$email}}
+<br>
+Password: {{$pass}}
 
-Your password is {{$pass}}
 
 {{-- <x-mail::button :url="''">
 Button Text

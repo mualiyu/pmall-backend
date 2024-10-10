@@ -75,7 +75,7 @@ class AuthController extends Controller
                     ], 422);
                 }
 
-                Mail::to($request->email)->send(new VerifyEmail($pin, $pass));
+                Mail::to($request->email)->send(new VerifyEmail($pin, $pass, $request->email, $request->store_name));
 
                 $token = $user->createToken('pmall-Vendor', ['Vendor'])->plainTextToken;
 
@@ -143,7 +143,7 @@ class AuthController extends Controller
                     ], 422);
                 }
 
-                Mail::to($request->email)->send(new VerifyEmail($pin, $request->password));
+                Mail::to($request->email)->send(new VerifyEmail($pin, $request->password, $request->email));
 
                 $token = $user->createToken('pmall-Affiliate', ['Affiliate'])->plainTextToken;
 
