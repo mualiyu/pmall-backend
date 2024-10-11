@@ -13,7 +13,9 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         //
-        'http://18.119.84.184/*',
+        'https://api.pmall.com.ng/*',
+        'http://207.174.213.131/*',
         'https://test.igeecloset.com/*',
+        'http://18.119.84.184/*',
     ];
 }
