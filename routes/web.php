@@ -16,7 +16,11 @@ use Illuminate\Support\Facades\Response;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    // return view('welcome');
+    return response()->json([
+        'status' => false,
+        'message' => "Please Contact Admin"
+    ], 401);
 });
 
 
