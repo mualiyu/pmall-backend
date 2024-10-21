@@ -30,7 +30,15 @@ width: 100% !important;
 <tr>
 <td align="center">
 <table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation">
-{{ $header ?? '' }}
+
+    <tr>
+    <td class="header">
+    <a href="{{ url() }}" style="display: inline-block;">
+    <img src="{{url('/')}}pmall-logo.jpeg" class="logo" alt="Pmall Logo">
+    </a>
+    </td>
+    </tr>
+
 
 <!-- Email Body -->
 <tr>
@@ -39,16 +47,33 @@ width: 100% !important;
 <!-- Body content -->
 <tr>
 <td class="content-cell">
-{{ Illuminate\Mail\Markdown::parse($slot) }}
+@yield('content')
 
-{{ $subcopy ?? '' }}
+{{-- <table class="subcopy" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+    <tr>
+    <td>
+    {{ Illuminate\Mail\Markdown::parse($slot) }}
+    </td>
+    </tr>
+    </table> --}}
+
 </td>
 </tr>
 </table>
 </td>
 </tr>
 
-{{ $footer ?? '' }}
+<tr>
+    <td>
+    <table class="footer" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation">
+    <tr>
+    <td class="content-cell" align="center">
+     © {{ date('Y') }} {{ config('app.name') }}. @lang('All rights reserved.')
+    </td>
+    </tr>
+    </table>
+    </td>
+    </tr>
 </table>
 </td>
 </tr>

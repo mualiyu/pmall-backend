@@ -48,6 +48,7 @@ return [
 
         'ses' => [
             'transport' => 'ses',
+            'region' => env('AWS_DEFAULT_REGION', 'us-east-2'), // Change to your region
         ],
 
         'postmark' => [

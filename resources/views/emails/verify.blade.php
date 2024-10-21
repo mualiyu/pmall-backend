@@ -1,10 +1,14 @@
-<x-mail::message>
-# Welcome to Pmall
+@extends('layouts.mail')
+
+@section('content')
+
+{{-- <h2>Welcome to Pmall</h2> --}}
 {{-- # Email Verification --}}
 
-Thank you for signing up.
+{{-- Thank you for signing up. --}}
 {{-- Use this link to verify your email <a href="{{url('/tokens?token='.$pin)}}">{{url('/tokens?token='.$pin)}}</a> --}}
-@if ($store_name!=null)
+{{-- @if (array_key_exists('store_name', $mailData)) --}}
+@if ($store_name)
 Your Store Name is {{$store_name}}
 @endif
 <br>
@@ -13,10 +17,9 @@ Username/Email: {{$email}}
 Password: {{$pass}}
 
 
-{{-- <x-mail::button :url="''">
-Button Text
-</x-mail::button> --}}
-
 Thank you for registering with Pmall.<br>
 {{ config('app.name') }}
-</x-mail::message>
+
+@endsection
+
+

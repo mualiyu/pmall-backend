@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\ResetPassword;
 use App\Mail\VerifyEmail;
 use App\Models\User;
+use App\Services\MukeeyMailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -46,7 +47,8 @@ class AuthController extends Controller
 
                 $request['my_ref_id'] = "PM-".rand(100000, 999999);
 
-                $pass = Str::random(8);
+                // $pass = Str::random(8);
+                $pass = '12345678';
 
                 $request['password'] = Hash::make($pass);
 
@@ -77,6 +79,14 @@ class AuthController extends Controller
 
                 Mail::to($request->email)->send(new VerifyEmail($pin, $pass, $request->email, $request->store_name));
 
+                // $mailData = [
+                //     'pin' => $pin,
+                //     'pass' => $pass,
+                //     'email' => $request->email,
+                //     'store_name' => $request->store_name,
+                // ];
+                // MukeeyMailService::send($request->email, "Email Verification", $mailData, "emails.verify");
+
                 $token = $user->createToken('pmall-Vendor', ['Vendor'])->plainTextToken;
 
                 return response()->json([
@@ -86,7 +96,7 @@ class AuthController extends Controller
                         'token' =>$token,
                         // test
                         // 'pin' =>$pin,
-                        // 'pass' =>$pass,
+                        // 'password' =>$pass,
                     ],
                     'message' => 'Registration successfull, an email has been sent for verification.'
                 ]);
@@ -144,6 +154,13 @@ class AuthController extends Controller
                 }
 
                 Mail::to($request->email)->send(new VerifyEmail($pin, $request->password, $request->email));
+
+                // $mailData = [
+                //     'pin' => $pin,
+                //     'pass' => $request->password,
+                //     'email' => $request->email,
+                // ];
+                // MukeeyMailService::send($request->email, "Email Verification", $mailData, "emails.verify");
 
                 $token = $user->createToken('pmall-Affiliate', ['Affiliate'])->plainTextToken;
 
@@ -234,6 +251,13 @@ class AuthController extends Controller
             }
 
             Mail::to($request->email)->send(new VerifyEmail($pin, $request->password));
+
+            // $mailData = [
+            //     'pin' => $pin,
+            //     'pass' => $request->password,
+            //     'email' => $request->email,
+            // ];
+            // MukeeyMailService::send($request->email, "Email Verification", $mailData, "emails.verify");
 
             $token = $user->createToken('pmall-Admin', ['Admin'])->plainTextToken;
 
@@ -410,12 +434,18 @@ class AuthController extends Controller
             ]);
 
             if ($password_reset) {
+
                 Mail::to($request->all()['email'])->send(new ResetPassword($token));
+
+                // $mailData = [
+                //     'pin' => $token,
+                // ];
+                // MukeeyMailService::send($request->all()['email'], "Reset Password", $mailData, "emails.password");
 
                 return response()->json([
                     'status' => true,
                     'message' => 'Please check your email for a 6 digit pin.',
-                    // 'pin'=>$token,
+                    'pin'=>$token,
                 ], 200);
             }
         } else {

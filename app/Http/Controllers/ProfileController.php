@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -126,9 +127,10 @@ class ProfileController extends Controller
                 $fileName = pathinfo($fileNameWExt, PATHINFO_FILENAME);
                 $fileExt = $request->file("file")->getClientOriginalExtension();
                 $fileNameToStore = $fileName."_".time().".".$fileExt;
-                $request->file("file")->storeAs("public/user", $fileNameToStore);
+                $request->file("file")->storeAs("user", $fileNameToStore, "s3");
 
-                $url = url('/storage/user/'.$fileNameToStore);
+                // $url = url('/storage/user/'.$fileNameToStore);
+                $url = Storage::disk('s3')->url("user/".$fileNameToStore);
 
                 return response()->json([
                     'status' => true,
@@ -232,7 +234,7 @@ class ProfileController extends Controller
                 ], 422);
             }
 
-            Mail::to($request->email)->send(new VerifyEmail($pin, $pass));
+            Mail::to($request->email)->send(new VerifyEmail($pin, $pass, $request->email));
 
             // $token = $user->createToken('pmall-Vendor', ['Vendor'])->plainTextToken;
 

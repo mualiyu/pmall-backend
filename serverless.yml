@@ -1,0 +1,80 @@
+service: laravel
+
+provider:
+    name: aws
+    # The AWS region in which to deploy (us-east-1 is the default)
+    region: us-east-2
+    # Environment variables
+    environment:
+        APP_NAME: "Pmall Stores"
+        # APP_ENV: local
+        APP_KEY: base64:xO6ly1uuCuXCvHletGWZshLLgORm3DkMYZWLSeBZ9YA=
+        APP_DEBUG: true
+        APP_ENV: production # Or use ${sls:stage} if you want the environment to match the stage
+
+        MAIL_MAILER: smtp
+        MAIL_HOST: smtp.gmail.com
+        MAIL_PORT: 465
+        MAIL_USERNAME: mualiyuoox@gmail.com
+        MAIL_PASSWORD: "ujrn eziz ibft tokl"
+        MAIL_ENCRYPTION: ssl
+        MAIL_FROM_ADDRESS: "hello@pmall.com.ng"
+        MAIL_FROM_NAME: "Pmall Stores"
+
+        PAYSTACK_PUBLIC_KEY: pk_test_93f3f12808156f834b317b2b615433ca933dfc15
+        PAYSTACK_SECRET_KEY: sk_test_4aa1569d43b308f1fa14692e8544f8110e1b66b1
+        PAYSTACK_PAYMENT_URL: https://api.paystack.co
+        MERCHANT_EMAIL: mualiyuoox@gmail.com
+
+        DB_CONNECTION: mysql
+        DB_HOST: my-dbs.cfee8ku4ia7k.us-east-2.rds.amazonaws.com
+        DB_PORT: 3306
+        DB_DATABASE: pmall_backend
+        DB_USERNAME: admin
+        DB_PASSWORD: NAUBcadet$2280
+
+        AWS_BUCKET: laravel-dev-serverlessdeploymentbucket-ujkyuthnuicm
+        AWS_USE_PATH_STYLE_ENDPOINT: false
+
+    vpc:
+        securityGroupIds:
+            - sg-0ffcf83994ed56c17 # Replace with your security group ID
+            # - sg-09bcce54fe7161eb7 # Replace with your security group ID
+        subnetIds:
+            - subnet-0bf330bb5dde15143 # Replace with your subnet ID
+            - subnet-058a58fb8c98ba539 # Add more if needed
+            - subnet-06129708692234943
+
+package:
+    # Files and directories to exclude from deployment
+    patterns:
+        - '!node_modules/**'
+        - '!public/storage'
+        # - '!resources/assets/**'
+        - '!storage/**'
+        - '!tests/**'
+
+functions:
+
+    # This function runs the Laravel website/API
+    web:
+        handler: public/index.php
+        runtime: php-82-fpm
+        timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
+        events:
+            - httpApi: '*'
+
+    # This function lets us run artisan commands in Lambda
+    artisan:
+        handler: artisan
+        runtime: php-82-console
+        timeout: 720 # in seconds
+        # Uncomment to also run the scheduler every minute
+        #events:
+        #    - schedule:
+        #          rate: rate(1 minute)
+        #          input: '"schedule:run"'
+
+plugins:
+    # We need to include the Bref plugin
+    - ./vendor/bref/bref
