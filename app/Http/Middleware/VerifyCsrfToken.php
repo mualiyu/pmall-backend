@@ -14,6 +14,7 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         //
         'https://123-testing-ps.nasida.na.gov.ng/*',
+        'https://api.pmall.mukeey.com.ng/*',
         'https://82.180.152.130/*',
         // 'https://api.pmall.com.ng/*',
         // 'http://207.174.213.131/*',
