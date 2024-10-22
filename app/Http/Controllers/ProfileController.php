@@ -127,10 +127,10 @@ class ProfileController extends Controller
                 $fileName = pathinfo($fileNameWExt, PATHINFO_FILENAME);
                 $fileExt = $request->file("file")->getClientOriginalExtension();
                 $fileNameToStore = $fileName."_".time().".".$fileExt;
-                $request->file("file")->storeAs("user", $fileNameToStore, "s3");
+                $request->file("file")->storeAs("public/user", $fileNameToStore);
 
-                // $url = url('/storage/user/'.$fileNameToStore);
-                $url = Storage::disk('s3')->url("user/".$fileNameToStore);
+                $url = url('/storage/user/'.$fileNameToStore);
+                // $url = Storage::disk('s3')->url("user/".$fileNameToStore);
 
                 return response()->json([
                     'status' => true,

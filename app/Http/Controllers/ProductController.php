@@ -57,10 +57,10 @@ class ProductController extends Controller
             $fileName = pathinfo($fileNameWExt, PATHINFO_FILENAME);
             $fileExt = $request->file("file")->getClientOriginalExtension();
             $fileNameToStore = $fileName . "_" . time() . "." . $fileExt;
-            $request->file("file")->storeAs("public/productImages", $fileNameToStore, "s3");
+            $request->file("file")->storeAs("public/productImages", $fileNameToStore);
 
-            // $url = url('/storage/productImages/' . $fileNameToStore);
-            $url = Storage::disk('s3')->url("user/".$fileNameToStore);
+            $url = url('/storage/productImages/' . $fileNameToStore);
+            // $url = Storage::disk('s3')->url("user/".$fileNameToStore);
 
 
             return response()->json([
