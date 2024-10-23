@@ -236,7 +236,7 @@ class ProductController extends Controller
     // Product brand section
     public function create_brand(Request $request)
     {
-        if ($request->user()->tokenCan('Admin')) {
+        if ($request->user()->tokenCan($request->user()->user_type)) {
 
             $validator = Validator::make($request->all(), [
                 'brand_image' => 'nullable',
@@ -275,7 +275,7 @@ class ProductController extends Controller
 
     public function update_brand(Request $request)
     {
-        if ($request->user()->tokenCan('Admin')) {
+        if ($request->user()->tokenCan($request->user()->user_type)) {
 
             $validator = Validator::make($request->all(), [
                 'brand_id' => 'required',
@@ -367,7 +367,7 @@ class ProductController extends Controller
     // Category section
     public function create_category(Request $request)
     {
-        if ($request->user()->tokenCan('Admin')) {
+        if ($request->user()->tokenCan($request->user()->user_type)) {
 
             $validator = Validator::make($request->all(), [
                 'category_image' => 'nullable',
@@ -425,7 +425,7 @@ class ProductController extends Controller
 
     public function update_category(Request $request)
     {
-        if ($request->user()->tokenCan('Admin')) {
+        if ($request->user()->tokenCan($request->user()->user_type)) {
 
             $validator = Validator::make($request->all(), [
                 'category_id' => 'required',
@@ -469,7 +469,7 @@ class ProductController extends Controller
 
     public function delete_category(Request $request)
     {
-        if ($request->user()->tokenCan("Admin")) {
+        if ($request->user()->tokenCan($request->user()->user_type)) {
 
             $s = ProductCategory::where('id', '=', $request->category_id)->delete();
 
@@ -497,7 +497,7 @@ class ProductController extends Controller
     // Sub Categories Section
     public function create_sub_category(Request $request)
     {
-        if ($request->user()->tokenCan('Admin')) {
+        if ($request->user()->tokenCan($request->user()->user_type)) {
 
             $validator = Validator::make($request->all(), [
                 'category_id' => 'nullable',
@@ -536,7 +536,7 @@ class ProductController extends Controller
 
     public function update_sub_category(Request $request)
     {
-        if ($request->user()->tokenCan('Admin')) {
+        if ($request->user()->tokenCan($request->user()->user_type)) {
 
             $validator = Validator::make($request->all(), [
                 'sub_category_id' => 'required',
@@ -579,7 +579,7 @@ class ProductController extends Controller
 
     public function delete_sub_category(Request $request)
     {
-        if ($request->user()->tokenCan("Admin")) {
+        if ($request->user()->tokenCan($request->user()->user_type)) {
 
             $s = ProductSubCategory::where('id', '=', $request->sub_category_id)->delete();
 
