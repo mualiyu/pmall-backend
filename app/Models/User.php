@@ -32,6 +32,7 @@ class User extends Authenticatable
         'my_ref_id',
         'description',
 
+        // Vendor (only)
         'store_name',
         'store_id',
         'store_url',
@@ -116,5 +117,40 @@ class User extends Authenticatable
     public function products(): HasMany
     {
         return $this->hasMany(product::class, 'store_id', 'store_id');
+    }
+
+    /**
+     * Get all upline referrers up to 10 generations
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function upline()
+    {
+        return $this->referrer()->with([
+            'referrer.referrer.referrer.referrer.referrer.referrer.referrer.referrer.referrer.referrer'
+        ]);
+    }
+
+    // Alternative method if you want to get them as a collection
+    public function getUplineUsers($levels = 10)
+    {
+        $uplineUsers = collect();
+        $currentUser = $this;
+
+        for ($i = 0; $i < $levels; $i++) {
+            $referrer = $currentUser->referrer;
+            if (!$referrer) {
+                break;
+            }
+            $uplineUsers->push($referrer);
+            $currentUser = $referrer;
+        }
+
+        return $uplineUsers;
+    }
+
+    public function wallet(): HasOne
+    {
+        return $this->hasOne(Wallet::class, 'user_id');
     }
 }

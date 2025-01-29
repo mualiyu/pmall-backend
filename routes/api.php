@@ -103,6 +103,8 @@ Route::prefix("v1")->group(function () {
 
         // Delete Account
         Route::delete('delete-account', [ProductController::class, 'destroy']);
+
+        Route::post('update-status/admin', [ProductController::class, 'adminUpdateStatus']);
     });
 
     // Product brand

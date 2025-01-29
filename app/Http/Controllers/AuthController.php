@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Mail\ResetPassword;
 use App\Mail\VerifyEmail;
 use App\Models\User;
+use App\Models\Wallet;
 use App\Services\MukeeyMailService;
+use App\Services\CompensationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -89,6 +91,17 @@ class AuthController extends Controller
 
                 $token = $user->createToken('pmall-Vendor', ['Vendor'])->plainTextToken;
 
+                Wallet::create([
+                    'user_id' => $user->id,
+                    'amount' => 0,
+                    'pv' => 0,
+                    'pmt' => 0,
+                ]);
+
+                // Process referral compensation
+                $compensationService = new CompensationService();
+                $compensationService->processReferralCompensation($user);
+
                 return response()->json([
                     'status' => true,
                     'data' => [
@@ -164,6 +177,17 @@ class AuthController extends Controller
 
                 $token = $user->createToken('pmall-Affiliate', ['Affiliate'])->plainTextToken;
 
+                Wallet::create([
+                    'user_id' => $user->id,
+                    'amount' => 0,
+                    'pv' => 0,
+                    'pmt' => 0,
+                ]);
+
+                // Process referral compensation
+                $compensationService = new CompensationService();
+                $compensationService->processReferralCompensation($user);
+
                 return response()->json([
                     'status' => true,
                     'data' => [
@@ -182,7 +206,7 @@ class AuthController extends Controller
                 return response()->json([
                     'status' => false,
                     'message' => "Failed, End-point not found!!!"
-                ], 422);
+                ], 400);
             }
 
             // bussiness logic here
@@ -191,7 +215,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => "Failed, End-point not found!"
-            ], 422);
+            ], 400);
         }
     }
 
@@ -324,6 +348,7 @@ class AuthController extends Controller
         ], 200);
     }
 
+
     // Login user
     public function login(Request $request)
     {
@@ -341,9 +366,9 @@ class AuthController extends Controller
         }
 
         // $user = Applicant::where('username', $request->username)->first();
-        $user = User::where('username', '=', $request->username)->get();
+        $user = User::where('username', '=', $request->username)->with('wallet')->get();
         if (!count($user)>0) {
-            $user = User::where('email', '=', $request->username)->get();
+            $user = User::where('email', '=', $request->username)->with('wallet')->get();
             // $user = Customer::where('email', $request->username)->first();
             if(!count($user)>0){
                 return response()->json([
@@ -373,10 +398,14 @@ class AuthController extends Controller
             //     ], 422);
             // }
             $can = $user->user_type;
+
+            // $uplineUsers = $user->upline;
+            // $uplineUsers = $user->getUplineUsers(2);
             return response()->json([
                 'status' => true,
                 'data' => [
                     'user' => $user,
+                    // 'uplines'=> $uplineUsers,
                     'token' => $user->createToken("pmall-".$can, [$can])->plainTextToken
                 ],
                 'message' => 'Login successfull.'

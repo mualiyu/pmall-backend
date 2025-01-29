@@ -187,6 +187,40 @@ class ProductController extends Controller
         }
     }
 
+    // update product status
+    public function adminUpdateStatus(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'product_id' => 'required',
+            'status' => 'required|in:0,1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ], 422);
+        }
+
+        $product = Product::find($request->product_id);
+
+        if (!$product) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Product not found.'
+            ], 422);
+        }
+
+        $product->status = $request->status;
+        $product->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Product status updated successfully.',
+            'data' => $product,
+        ], 200);
+    }
+
 
     public function show(Request $request)
     {
