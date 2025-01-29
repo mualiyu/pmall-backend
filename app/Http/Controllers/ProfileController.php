@@ -22,7 +22,7 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => true,
                 'data' => [
-                    'user' => User::where('id', '=', $request->user()->id)->with('referrals')->with('referrer')->get()[0],
+                    'user' => User::where('id', '=', $request->user()->id)->with('wallet')->with('referrals')->with('referrer')->get()[0],
                 ],
             ], 200);
 
