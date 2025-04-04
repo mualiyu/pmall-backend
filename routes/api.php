@@ -11,6 +11,7 @@ use App\Http\Controllers\UserController;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PackagePaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -83,6 +84,9 @@ Route::prefix("v1")->group(function () {
     // Account packages
     Route::get('account-packages/all', [AccountPackageController::class, 'get_all']);
     Route::post('account-packages/create', [AccountPackageController::class, 'store']);
+    // Payment routes
+    Route::post('account-packages/payment/initialize', [PackagePaymentController::class, 'initPayment']);
+    Route::get('account-packages/payment/verify/{reference}', [PackagePaymentController::class, 'verifyPayment']);
 
     // payment route
     Route::post('account-payment/store', [UserController::class, 'acct_pay']);
@@ -108,7 +112,7 @@ Route::prefix("v1")->group(function () {
     });
 
     // Product brand
-    Route::middleware('auth:sanctum')->get('product-brand/get-all', [ProductController::class, 'get_all_brands']);
+    Route::get('product-brand/get-all', [ProductController::class, 'get_all_brands']);
     Route::middleware('auth:sanctum')->post('product-brand/create', [ProductController::class, 'create_brand']);
     Route::middleware('auth:sanctum')->post('product-brand/update', [ProductController::class, 'update_brand']);
     Route::middleware('auth:sanctum')->post('product-brand/delete', [ProductController::class, 'delete_brand']);

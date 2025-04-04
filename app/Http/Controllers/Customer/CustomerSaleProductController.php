@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Mail\SaleSuccess;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SalePayment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Yabacon\Paystack;
 
@@ -114,7 +116,6 @@ class CustomerSaleProductController extends Controller
 
 
     // Payments Logic
-
     public function initiatePayment(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -136,7 +137,8 @@ class CustomerSaleProductController extends Controller
             $tranx = $paystack->transaction->initialize([
                 'amount' => ($sale->total_amount == $request->amount) ? $request->amount * 100 : $sale->total_amount * 100, // Amount in kobo (or cents)
                 'email' => $sale->customer->email ? $sale->customer->email : $sale->customer->phone,
-                'callback_url' => url('/api/v1/customer/paystack/verify-callback'),
+                'callback_url' => env('FRONT_URL').'/checkout/transaction/verify',
+                // 'callback_url' => url('/api/v1/customer/paystack/verify-callback'),
                 'metadata' => [
                     'sale_id' => $request->sale_id, // Custom metadata
                 ],
@@ -180,6 +182,12 @@ class CustomerSaleProductController extends Controller
                     'payment_status' => 'paid'
                 ]);
 
+                // Send mail to the customer
+                Mail::to($sale->customer->email)->send(new SaleSuccess());
+
+                // Send mail to the vendor
+                Mail::to($sale->vendor->email)->send(new SaleSuccess());
+
                 return response()->json([
                     'status' => true,
                     'message' => 'Payment successful',
@@ -199,6 +207,5 @@ class CustomerSaleProductController extends Controller
     public function verifyCallBack(Request $request)
     {
         return $request;
-
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\ResetPassword;
 use App\Mail\VerifyEmail;
+use App\Models\AccountPackage;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Services\MukeeyMailService;
@@ -16,9 +17,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yabacon\Paystack;
 
 class AuthController extends Controller
 {
+
     public function register(Request $request, $is)
     {
         if (isset($is)) {
@@ -91,6 +94,10 @@ class AuthController extends Controller
 
                 $token = $user->createToken('pmall-Vendor', ['Vendor'])->plainTextToken;
 
+                // payment section
+                $package = AccountPackage::find($request->package_id);
+                $payment = $package->init_payment($user);
+
                 Wallet::create([
                     'user_id' => $user->id,
                     'amount' => 0,
@@ -107,6 +114,7 @@ class AuthController extends Controller
                     'data' => [
                         'user' => User::where('id', '=', $user->id)->with('package')->get()[0],
                         'token' =>$token,
+                        'payment' =>$payment,
                         // test
                         // 'pin' =>$pin,
                         // 'password' =>$pass,
@@ -177,6 +185,10 @@ class AuthController extends Controller
 
                 $token = $user->createToken('pmall-Affiliate', ['Affiliate'])->plainTextToken;
 
+                // payments way
+                $package = AccountPackage::find($request->package_id);
+                $payment = $package->init_payment($user);
+
                 Wallet::create([
                     'user_id' => $user->id,
                     'amount' => 0,
@@ -193,6 +205,7 @@ class AuthController extends Controller
                     'data' => [
                         'user' => User::where('id', '=', $user->id)->with('package')->get()[0],
                         'token' =>$token,
+                        'payment' =>$payment,
                         // test
                         // 'pin' =>$pin,
                     ],
@@ -563,6 +576,33 @@ class AuthController extends Controller
     }
 
 
+    public function init_payment($user, $package)
+    {
+        try {
+            $paystack = new Paystack(env('PAYSTACK_SECRET_KEY'));
+            $tranx = $paystack->transaction->initialize([
+                'amount' => $package->price * 100, // Amount in kobo (or cents)
+                'email' => $user->email ? $user->email : $user->phone,
+                'callback_url' => env('FRONT_URL').'/package/payment/verification',
+                // 'callback_url' => url('/api/v1/customer/paystack/verify-callback'),
+                'metadata' => [
+                    'package_id' => $package->id, // Custom metadata
+                    'user_id' => $user->id, // Custom metadata
+                ],
+            ]);
+
+            return [
+                'status' => true,
+                'authorization_url' => $tranx->data->authorization_url,
+                'reference' => $tranx->data->reference,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'status' => false,
+                'message' => $e->getMessage(),
+            ];
+        }
+    }
 
 
     // ends of class AuthController

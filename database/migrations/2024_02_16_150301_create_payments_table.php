@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('method');
             $table->string('note')->nullable();
             $table->longText('ref_id');
-            $table->boolean('isapproved');
+            $table->boolean('isapproved')->default(false);
             $table->timestamps();
         });
     }

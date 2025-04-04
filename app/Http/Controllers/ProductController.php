@@ -380,7 +380,7 @@ class ProductController extends Controller
 
     public function get_all_brands(Request $request)
     {
-        if ($request->user()->tokenCan($request->user()->user_type)) {
+        // if ($request->user()->tokenCan($request->user()->user_type)) {
 
             return response()->json([
                 'status' => true,
@@ -389,12 +389,12 @@ class ProductController extends Controller
                 ],
             ], 200);
 
-        }else{
-            return response()->json([
-                'status' => false,
-                'message' => trans('auth.failed')
-            ], 422);
-        }
+        // }else{
+        //     return response()->json([
+        //         'status' => false,
+        //         'message' => trans('auth.failed')
+        //     ], 422);
+        // }
     }
 
 
