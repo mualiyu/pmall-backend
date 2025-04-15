@@ -28,6 +28,12 @@ Route::prefix("customer")->group(function () {
         Route::get('paystack/verify/{reference}', [CustomerSaleProductController::class, 'verifyPayment']);
     });
 
+    // Customer sale history
+    Route::middleware('auth:sanctum')->prefix("sales")->group(function () {
+        Route::get('history', [CustomerSaleProductController::class, 'salesHistory']);
+        Route::get('single-sale', [CustomerSaleProductController::class, 'singleSale']);
+    });
+
     // just for verification
     Route::get('paystack/verify-callback', [CustomerSaleProductController::class, 'verifyCallBack']);
 });

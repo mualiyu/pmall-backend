@@ -153,4 +153,18 @@ class User extends Authenticatable
     {
         return $this->hasOne(Wallet::class, 'user_id');
     }
+
+
+    // sales from Sale where this user is among the vendors
+    public function sales()
+    {
+        return $this->hasManyThrough(
+            Sale::class,
+            Product::class,
+            'store_id', // Foreign key on the products table...
+            'id', // Foreign key on the sales table...
+            'store_id', // Local key on the users table...
+            'sale_id' // Local key on the products table...
+        )->distinct();
+    }
 }

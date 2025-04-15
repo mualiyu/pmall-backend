@@ -26,7 +26,7 @@ class AuthController extends Controller
     {
         if (isset($is)) {
 
-            // For vendor
+            // For vendor 😎😎
             if ($is == "vendor") {
                 $validator = Validator::make($request->all(), [
                     'fname' => 'required|string',
@@ -46,11 +46,11 @@ class AuthController extends Controller
                 }
 
                 $request['user_type'] = "Vendor";
-                $request['store_id'] = "PMS-".rand(100000, 999999);
+                $request['store_id'] = "PMS-" . rand(100000, 999999);
                 $request['status'] = "1";
                 $request['photo'] = "assets.pmall.ng/user/default.png";
 
-                $request['my_ref_id'] = "PM-".rand(100000, 999999);
+                $request['my_ref_id'] = "PM-" . rand(100000, 999999);
 
                 // $pass = Str::random(8);
                 $pass = '12345678';
@@ -75,7 +75,7 @@ class AuthController extends Controller
                                 'token' => $pin
                             ]
                         );
-                }else{
+                } else {
                     return response()->json([
                         'status' => false,
                         'message' => "Failed, Try again!"
@@ -113,8 +113,8 @@ class AuthController extends Controller
                     'status' => true,
                     'data' => [
                         'user' => User::where('id', '=', $user->id)->with('package')->get()[0],
-                        'token' =>$token,
-                        'payment' =>$payment,
+                        'token' => $token,
+                        'payment' => $payment,
                         // test
                         // 'pin' =>$pin,
                         // 'password' =>$pass,
@@ -123,8 +123,8 @@ class AuthController extends Controller
                 ]);
 
 
-            // For Affiliate
-            }elseif ($is == "affiliate") {
+                // For Affiliate 😎😎
+            } elseif ($is == "affiliate") {
                 $validator = Validator::make($request->all(), [
                     'fname' => 'required|string',
                     'lname' => 'required',
@@ -147,7 +147,7 @@ class AuthController extends Controller
                 $request['status'] = "1";
                 $request['photo'] = "assets.pmall.ng/user/default.png";
 
-                $request['my_ref_id'] = "PM-".rand(100000, 999999);
+                $request['my_ref_id'] = "PM-" . rand(100000, 999999);
 
                 $user = User::create($request->all());
 
@@ -167,7 +167,7 @@ class AuthController extends Controller
                                 'token' => $pin
                             ]
                         );
-                }else{
+                } else {
                     return response()->json([
                         'status' => false,
                         'message' => "Failed, Try again!"
@@ -192,8 +192,8 @@ class AuthController extends Controller
                 Wallet::create([
                     'user_id' => $user->id,
                     'amount' => 0,
-                    'pv' => 0,
-                    'pmt' => 0,
+                    'pv' => $package->name == "Silver" ? 6 : ($package->name == "Gold" ? 15 : ($package->name == "Diamond" ? 40 : 0)),
+                    'pmt' => $package->name == "Silver" ? 200 : ($package->name == "Gold" ? 500 : ($package->name == "Diamond" ? 1500 : 0)),
                 ]);
 
                 // Process referral compensation
@@ -204,8 +204,8 @@ class AuthController extends Controller
                     'status' => true,
                     'data' => [
                         'user' => User::where('id', '=', $user->id)->with('package')->get()[0],
-                        'token' =>$token,
-                        'payment' =>$payment,
+                        'token' => $token,
+                        'payment' => $payment,
                         // test
                         // 'pin' =>$pin,
                     ],
@@ -213,18 +213,18 @@ class AuthController extends Controller
                 ], 200);
                 //
 
-            // else if not Both 🤪
-            }else{
+                // else if not Both 🤪
+            } else {
 
                 return response()->json([
                     'status' => false,
-                    'message' => "Failed, End-point not found!!!"
+                    'message' => "Failed, End-point not found!!"
                 ], 400);
             }
 
             // bussiness logic here
 
-        }else {
+        } else {
             return response()->json([
                 'status' => false,
                 'message' => "Failed, End-point not found!"
@@ -234,81 +234,81 @@ class AuthController extends Controller
 
     public function register_admin(Request $request)
     {
-            if (!$request->user()->tokenCan("Admin")) {
-                return response()->json([
-                    'status' => false,
-                    'message' => "you have to be authorized"
-                ], 422);
-            }
-            $validator = Validator::make($request->all(), [
-                'fname' => 'required|string',
-                'lname' => 'required',
-                'email' => 'required|email|unique:users,email',
-                'username' => 'required|unique:users,username',
-                'password' => 'required',
-                'phone' => 'required',
+        if (!$request->user()->tokenCan("Admin")) {
+            return response()->json([
+                'status' => false,
+                'message' => "you have to be authorized"
+            ], 422);
+        }
+        $validator = Validator::make($request->all(), [
+            'fname' => 'required|string',
+            'lname' => 'required',
+            'email' => 'required|email|unique:users,email',
+            'username' => 'required|unique:users,username',
+            'password' => 'required',
+            'phone' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ], 422);
+        }
+
+        $request['user_type'] = "Admin";
+        $request['status'] = "1";
+        $request['photo'] = "assets.pmall.ng/user/default.png";
+
+        $request['my_ref_id'] = "PM-" . rand(100000, 999999);
+
+        $user = User::create($request->all());
+
+        if ($user) {
+            $verify2 =  DB::table('password_reset_tokens')->where([
+                ['email', $request->all()['email']]
             ]);
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => $validator->errors()->first()
-                ], 422);
+            if ($verify2->exists()) {
+                $verify2->delete();
             }
-
-            $request['user_type'] = "Admin";
-            $request['status'] = "1";
-            $request['photo'] = "assets.pmall.ng/user/default.png";
-
-            $request['my_ref_id'] = "PM-".rand(100000, 999999);
-
-            $user = User::create($request->all());
-
-            if ($user) {
-                $verify2 =  DB::table('password_reset_tokens')->where([
-                    ['email', $request->all()['email']]
-                ]);
-
-                if ($verify2->exists()) {
-                    $verify2->delete();
-                }
-                $pin = rand(10000000, 99999999);
-                DB::table('password_reset_tokens')
-                    ->insert(
-                        [
-                            'email' => $request->all()['email'],
-                            'token' => $pin
-                        ]
-                    );
-            }else{
-                return response()->json([
-                    'status' => false,
-                    'message' => "Failed, Try again!"
-                ], 422);
-            }
-
-            Mail::to($request->email)->send(new VerifyEmail($pin, $request->password));
-
-            // $mailData = [
-            //     'pin' => $pin,
-            //     'pass' => $request->password,
-            //     'email' => $request->email,
-            // ];
-            // MukeeyMailService::send($request->email, "Email Verification", $mailData, "emails.verify");
-
-            $token = $user->createToken('pmall-Admin', ['Admin'])->plainTextToken;
-
+            $pin = rand(10000000, 99999999);
+            DB::table('password_reset_tokens')
+                ->insert(
+                    [
+                        'email' => $request->all()['email'],
+                        'token' => $pin
+                    ]
+                );
+        } else {
             return response()->json([
-                'status' => true,
-                'data' => [
-                    'user' => User::where('id', '=', $user->id)->with('package')->get()[0],
-                    'token' =>$token,
-                    // test
-                    // 'pin' =>$pin,
-                ],
-                'message' => 'Registration successfull, an email has been sent for verification.'
-            ], 200);
-            //
+                'status' => false,
+                'message' => "Failed, Try again!"
+            ], 422);
+        }
+
+        Mail::to($request->email)->send(new VerifyEmail($pin, $request->password));
+
+        // $mailData = [
+        //     'pin' => $pin,
+        //     'pass' => $request->password,
+        //     'email' => $request->email,
+        // ];
+        // MukeeyMailService::send($request->email, "Email Verification", $mailData, "emails.verify");
+
+        $token = $user->createToken('pmall-Admin', ['Admin'])->plainTextToken;
+
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'user' => User::where('id', '=', $user->id)->with('package')->get()[0],
+                'token' => $token,
+                // test
+                // 'pin' =>$pin,
+            ],
+            'message' => 'Registration successfull, an email has been sent for verification.'
+        ], 200);
+        //
 
     }
 
@@ -349,13 +349,13 @@ class AuthController extends Controller
         $user->email_verified_at = Carbon::now()->getTimestamp();
         $user->save();
 
-        $token = $user->createToken('pmall-'.$user->user_type, [$user->user_type])->plainTextToken;
+        $token = $user->createToken('pmall-' . $user->user_type, [$user->user_type])->plainTextToken;
 
         return response()->json([
             'status' => true,
             'data' => [
                 'user' => User::where('id', '=', $user->id)->with('package')->get()[0],
-                'token' =>$token,
+                'token' => $token,
             ],
             'message' => 'Email verification successfull.'
         ], 200);
@@ -380,10 +380,10 @@ class AuthController extends Controller
 
         // $user = Applicant::where('username', $request->username)->first();
         $user = User::where('username', '=', $request->username)->with('wallet')->get();
-        if (!count($user)>0) {
+        if (!count($user) > 0) {
             $user = User::where('email', '=', $request->username)->with('wallet')->get();
             // $user = Customer::where('email', $request->username)->first();
-            if(!count($user)>0){
+            if (!count($user) > 0) {
                 return response()->json([
                     'status' => false,
                     'message' => "User not found or invalid credentials"
@@ -392,12 +392,12 @@ class AuthController extends Controller
         }
         $user = $user[0];
 
-        if (!Hash::check($request->password, $user->password) || !$user->status=='1') {
+        if (!Hash::check($request->password, $user->password) || !$user->status == '1') {
             return response()->json([
                 'status' => false,
                 'message' => "User not found or invalid credentials"
             ], 422);
-        }else{
+        } else {
             // if ($user->email_verified_at==null) {
             //     return response()->json([
             //         'status' => false,
@@ -410,6 +410,7 @@ class AuthController extends Controller
             //         'message' => "Sorry your account is not active, Pay for a package to acitvate your account."
             //     ], 422);
             // }
+
             $can = $user->user_type;
 
             // $uplineUsers = $user->upline;
@@ -419,12 +420,11 @@ class AuthController extends Controller
                 'data' => [
                     'user' => $user,
                     // 'uplines'=> $uplineUsers,
-                    'token' => $user->createToken("pmall-".$can, [$can])->plainTextToken
+                    'token' => $user->createToken("pmall-" . $can, [$can])->plainTextToken
                 ],
                 'message' => 'Login successfull.'
             ]);
         }
-
     }
 
 
@@ -436,7 +436,6 @@ class AuthController extends Controller
             'status' => true,
             'message' => "Logged out",
         ], 200);
-
     }
 
 
@@ -459,14 +458,15 @@ class AuthController extends Controller
 
         if ($verify) {
             $verify2 =  DB::table('password_reset_tokens')->where([
-                    ['email', $request->all()['email']]
-                ]);
+                ['email', $request->all()['email']]
+            ]);
 
             if ($verify2->exists()) {
                 $verify2->delete();
             }
 
-            $token = random_int(100000,
+            $token = random_int(
+                100000,
                 999999
             );
             $password_reset = DB::table('password_reset_tokens')->insert([
@@ -487,7 +487,7 @@ class AuthController extends Controller
                 return response()->json([
                     'status' => true,
                     'message' => 'Please check your email for a 6 digit pin.',
-                    'pin'=>$token,
+                    'pin' => $token,
                 ], 200);
             }
         } else {
@@ -583,7 +583,7 @@ class AuthController extends Controller
             $tranx = $paystack->transaction->initialize([
                 'amount' => $package->price * 100, // Amount in kobo (or cents)
                 'email' => $user->email ? $user->email : $user->phone,
-                'callback_url' => env('FRONT_URL').'/package/payment/verification',
+                'callback_url' => env('FRONT_URL') . '/package/payment/verification',
                 // 'callback_url' => url('/api/v1/customer/paystack/verify-callback'),
                 'metadata' => [
                     'package_id' => $package->id, // Custom metadata

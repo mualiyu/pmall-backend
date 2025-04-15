@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Mail\CustomerSaleSuccess;
 use App\Mail\SaleSuccess;
 use App\Models\Customer;
 use App\Models\Product;
@@ -93,7 +94,6 @@ class CustomerSaleProductController extends Controller
                     'message' => 'Sale registered successfully',
                     'sale' => $sale,
                 ], 201);
-
             } catch (\Exception $e) {
 
                 DB::rollBack();
@@ -103,15 +103,13 @@ class CustomerSaleProductController extends Controller
                     'message' => 'Failed to register sale: ' . $e->getMessage(),
                 ], 422);
             }
-
-        }else {
+        } else {
 
             return response()->json([
                 'status' => false,
                 'message' => trans('auth.failed')
             ], 422);
         }
-
     }
 
 
@@ -130,14 +128,34 @@ class CustomerSaleProductController extends Controller
             ], 422);
         }
 
-        $sale = Sale::where('id', '=', $request->sale_id)->with('customer')->get()[0];
+        $sale = Sale::where('id', '=', $request->sale_id)->with('customer')->get();
+        if ($sale->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Sale not found'
+            ], 422);
+        }
+
+        if ($sale->customer_id != $request->user()->id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'You are not authorized to make this payment'
+            ], 422);
+        }
+        if ($sale[0]->status != 'pending') {
+            return response()->json([
+                'status' => false,
+                'message' => 'This cart has already been paid for'
+            ], 422);
+        }
+        $sale = $sale[0];
 
         try {
             $paystack = new Paystack(env('PAYSTACK_SECRET_KEY'));
             $tranx = $paystack->transaction->initialize([
                 'amount' => ($sale->total_amount == $request->amount) ? $request->amount * 100 : $sale->total_amount * 100, // Amount in kobo (or cents)
                 'email' => $sale->customer->email ? $sale->customer->email : $sale->customer->phone,
-                'callback_url' => env('FRONT_URL').'/checkout/transaction/verify',
+                'callback_url' => env('FRONT_URL') . '/checkout/transaction/verify',
                 // 'callback_url' => url('/api/v1/customer/paystack/verify-callback'),
                 'metadata' => [
                     'sale_id' => $request->sale_id, // Custom metadata
@@ -182,11 +200,11 @@ class CustomerSaleProductController extends Controller
                     'payment_status' => 'paid'
                 ]);
 
-                // Send mail to the customer
-                Mail::to($sale->customer->email)->send(new SaleSuccess());
+                // // Send mail to the customer
+                Mail::to($sale->customer->email)->send(new CustomerSaleSuccess($sale = Sale::find($sale->id)));
 
-                // Send mail to the vendor
-                Mail::to($sale->vendor->email)->send(new SaleSuccess());
+                // // Send mail to the vendor
+                // Mail::to($sale->vendor->email)->send(new SaleSuccess());
 
                 return response()->json([
                     'status' => true,
@@ -207,5 +225,53 @@ class CustomerSaleProductController extends Controller
     public function verifyCallBack(Request $request)
     {
         return $request;
+    }
+
+    // sales_history
+    public function salesHistory(Request $request)
+    {
+        $sales = Sale::where('customer_id', '=', $request->user()->id)->get();
+
+        if ($sales->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No sales found'
+            ], 422);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'No sales found',
+            'sales' => $sales,
+        ], 200);
+    }
+
+    // single-sale
+    public function singleSale(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'sale_id' => 'required|exists:sales,id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ], 422);
+        }
+        $sale = Sale::where('id', '=', $request->sale_id)->with('products')->with('payments')->get();
+
+        if ($sale->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No sales found'
+            ], 422);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'No sales found',
+            'sale' => $sale,
+        ], 200);
     }
 }

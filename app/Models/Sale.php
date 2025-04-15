@@ -32,12 +32,19 @@ class Sale extends Model
     public function products(): BelongsToMany
     {
         return $this->belongsToMany(Product::class)
-                    ->withPivot('quantity', 'price', 'total')
-                    ->withTimestamps();
+            ->withPivot('quantity', 'price', 'total')
+            ->withTimestamps();
     }
 
     public function payments(): HasMany
-{
-    return $this->hasMany(SalePayment::class);
-}
+    {
+        return $this->hasMany(SalePayment::class);
+    }
+
+    public function vendors()
+    {
+        return $this->products->map(function ($product) {
+            return $product->vendor;
+        })->unique();
+    }
 }

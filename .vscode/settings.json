@@ -1,5 +1,11 @@
 {
     "[codeblock]": {
         "files.encoding": "windows1252"
-    }
+    },
+    "idf.pythonInstallPath": "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "prettier.tabWidth": 2,
+    "prettier.printWidth": 120,
+    "prettier.trailingComma": "all"
 }

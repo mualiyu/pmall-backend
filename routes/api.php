@@ -84,12 +84,13 @@ Route::prefix("v1")->group(function () {
     // Account packages
     Route::get('account-packages/all', [AccountPackageController::class, 'get_all']);
     Route::post('account-packages/create', [AccountPackageController::class, 'store']);
+
     // Payment routes
-    Route::post('account-packages/payment/initialize', [PackagePaymentController::class, 'initPayment']);
-    Route::get('account-packages/payment/verify/{reference}', [PackagePaymentController::class, 'verifyPayment']);
+    Route::middleware('auth:sanctum')->post('account-packages/payment/initialize', [PackagePaymentController::class, 'initPayment']);
+    Route::middleware('auth:sanctum')->get('account-packages/payment/verify/{reference}', [PackagePaymentController::class, 'verifyPayment']);
 
     // payment route
-    Route::post('account-payment/store', [UserController::class, 'acct_pay']);
+    Route::middleware('auth:sanctum')->post('account-payment/store', [UserController::class, 'acct_pay']);
 
     // products management
     Route::middleware('auth:sanctum')->prefix("products")->group(function () {
@@ -129,5 +130,4 @@ Route::prefix("v1")->group(function () {
 
     // Include the customer routes
     require __DIR__ . '/customer.php';
-
 });

@@ -10,7 +10,7 @@ use Yabacon\Paystack;
 
 class PackagePaymentController extends Controller
 {
-    public function verifyPayment($reference)
+    public function verifyPayment(Request $request, $reference)
     {
         try {
             $paystack = new Paystack(env('PAYSTACK_SECRET_KEY'));
@@ -75,7 +75,7 @@ class PackagePaymentController extends Controller
             $response = $paystack->transaction->initialize([
                 'amount' => $package->price * 100, // Convert to kobo (Paystack uses the smallest currency unit)
                 'email' => $request->email,
-                'callback_url' =>  env('FRONT_URL').'/package/payment/verification',
+                'callback_url' =>  env('FRONT_URL') . '/package/payment/verification',
                 'metadata' => [
                     'package_id' => $package->id,
                     'user_id' => $user->id,
@@ -90,7 +90,6 @@ class PackagePaymentController extends Controller
                     'reference' => $response->data->reference,
                 ]
             ], 201);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,

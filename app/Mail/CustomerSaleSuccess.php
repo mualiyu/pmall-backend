@@ -9,16 +9,18 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class SaleSuccess extends Mailable
+class CustomerSaleSuccess extends Mailable
 {
     use Queueable, SerializesModels;
 
+
+    public $sale;
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct($sale)
     {
-        //
+        $this->sale = $sale;
     }
 
     /**
@@ -27,7 +29,7 @@ class SaleSuccess extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Sale Success',
+            subject: 'Transaction Success',
         );
     }
 
@@ -37,7 +39,7 @@ class SaleSuccess extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.sale-success',
+            view: 'emails.customer-sale-success',
         );
     }
 
