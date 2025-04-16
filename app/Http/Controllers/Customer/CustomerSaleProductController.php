@@ -234,7 +234,7 @@ class CustomerSaleProductController extends Controller
     // sales_history
     public function salesHistory(Request $request)
     {
-        $sales = Sale::where('customer_id', '=', $request->user()->id)->get();
+        $sales = Sale::where('customer_id', '=', $request->user()->id)->with('products')->get();
 
         if ($sales->isEmpty()) {
             return response()->json([
@@ -245,7 +245,7 @@ class CustomerSaleProductController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'No sales found',
+            'message' => 'Here are the list of your Sales history',
             'sales' => $sales,
         ], 200);
     }
@@ -274,8 +274,8 @@ class CustomerSaleProductController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'No sales found',
-            'sale' => $sale,
+            'message' => 'Sale details',
+            'sale' => $sale[0],
         ], 200);
     }
 }
