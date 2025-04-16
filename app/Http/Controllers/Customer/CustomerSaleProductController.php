@@ -129,6 +129,7 @@ class CustomerSaleProductController extends Controller
         }
 
         $sale = Sale::where('id', '=', $request->sale_id)->with('customer')->get();
+
         if ($sale->isEmpty()) {
             return response()->json([
                 'status' => false,
@@ -136,18 +137,20 @@ class CustomerSaleProductController extends Controller
             ], 422);
         }
 
-        if ($sale->customer_id != $request->user()->id) {
+        if ($sale[0]->customer_id != $request->user()->id) {
             return response()->json([
                 'status' => false,
                 'message' => 'You are not authorized to make this payment'
             ], 422);
         }
+
         if ($sale[0]->status != 'pending') {
             return response()->json([
                 'status' => false,
                 'message' => 'This cart has already been paid for'
             ], 422);
         }
+
         $sale = $sale[0];
 
         try {
