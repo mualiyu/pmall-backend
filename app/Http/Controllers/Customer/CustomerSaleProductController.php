@@ -216,9 +216,10 @@ class CustomerSaleProductController extends Controller
                 ], 200);
             } else {
                 return response()->json([
-                    'status' => false,
+                    'status' => true,
                     'message' => 'Payment failed',
-                ], 400);
+                    'data' => ['status' => $tranx->data->status],
+                ], 200);
             }
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
