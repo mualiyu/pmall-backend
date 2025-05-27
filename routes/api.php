@@ -12,6 +12,8 @@ use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PackagePaymentController;
+use App\Http\Controllers\WithdrawalController;
+use App\Models\Withdrawal;
 
 /*
 |--------------------------------------------------------------------------
@@ -110,6 +112,22 @@ Route::prefix("v1")->group(function () {
         Route::delete('delete-account', [ProductController::class, 'destroy']);
 
         Route::post('update-status/admin', [ProductController::class, 'adminUpdateStatus']);
+    });
+
+    // Admin Withdrawal list, admin can approve or reject
+    Route::middleware('auth:sanctum')->prefix('admin-withdrawal')->group(function () {
+        Route::get('list', [WithdrawalController::class, 'withdrawal_list']);
+        Route::get('single/{id}', [WithdrawalController::class, 'single_withdrawal']);
+        Route::post('approve/{id}', [WithdrawalController::class, 'approve_withdrawal']);
+        Route::post('reject/{id}', [WithdrawalController::class, 'reject_withdrawal']);
+        Route::post('complete/{id}', [WithdrawalController::class, 'complete_withdrawal']);
+    });
+
+    // Vendor & Affiliate Withdrawal
+    Route::middleware('auth:sanctum')->prefix('withdrawal')->group(function () {
+        Route::post('request', [WithdrawalController::class, 'requestWithdrawal']);
+        Route::get('history', [WithdrawalController::class, 'history']);
+        Route::get('single/{id}', [WithdrawalController::class, 'single']);
     });
 
     // Product brand

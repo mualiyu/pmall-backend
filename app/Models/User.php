@@ -167,4 +167,9 @@ class User extends Authenticatable
             'sale_id' // Local key on the products table...
         )->distinct();
     }
+
+    public function withdrawals()
+    {
+        return $this->hasMany(Withdrawal::class);
+    }
 }

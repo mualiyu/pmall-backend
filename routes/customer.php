@@ -3,6 +3,7 @@
 use App\Http\Controllers\Customer\CustomerAuthController;
 use App\Http\Controllers\Customer\CustomerProfileController;
 use App\Http\Controllers\Customer\CustomerSaleProductController;
+use App\Http\Controllers\Customer\CustomerWithdrawalController;
 use App\Http\Controllers\PublicProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +35,7 @@ Route::prefix("customer")->group(function () {
         Route::get('single-sale', [CustomerSaleProductController::class, 'singleSale']);
     });
 
+
     // just for verification
     Route::get('paystack/verify-callback', [CustomerSaleProductController::class, 'verifyCallBack']);
 });
@@ -50,5 +52,7 @@ Route::prefix("public")->group(function () {
         Route::get('get-all-categories', [PublicProductController::class, 'get_all_categories']);
         Route::get('list-all-by-category', [PublicProductController::class, 'get_all_products_by_category']);
         Route::get('list-all-by-sub-category', [PublicProductController::class, 'get_all_products_by_sub_category']);
+
+        Route::get('list-all-by-vendor', [PublicProductController::class, 'get_all_products_by_vendor']);
     });
 });
