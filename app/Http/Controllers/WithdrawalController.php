@@ -201,6 +201,10 @@ class WithdrawalController extends Controller
             'remarks' => $request->remarks,
         ]);
 
+        $w = Wallet::find($request->wallet_id);
+        $w->amount -= $request->amount;
+        $w->save();
+
         if (!$withdrawal) {
             return response()->json([
                 'status' => false,
