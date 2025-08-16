@@ -105,7 +105,6 @@ class PublicProductController extends Controller
 
     public function get_all_products_by_vendor(Request $request)
     {
-
         $user = User::where(['user_type' => 'Vendor', 'store_id' => $request->store_id])->with('products')->get();
 
         if (count($user) > 0) {
