@@ -1,0 +1,18 @@
+POST http://127.0.0.1:8000/api/v1/customer/checkout/initiate
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer 2|5NzMdXZ4SBDyTzOmUy6JI4GU37Yl6sCXEcnEEah36381b5a6
+
+{
+  "customer_id": 1,
+  "products": [
+    {
+      "product_id": 1,
+      "quantity": 3
+    },
+    {
+      "product_id": 2,
+      "quantity": 2
+    }
+  ]
+}

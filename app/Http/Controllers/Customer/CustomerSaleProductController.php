@@ -8,7 +8,14 @@ use App\Mail\SaleSuccess;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Sale;
+use App\Models\User;
 use App\Models\SalePayment;
+use App\Models\Vendor;
+use App\Models\Admin;
+use App\Notifications\VendorPurchaseNotification;
+use App\Notifications\AdminPurchaseNotification;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Helpers\WhatsAppHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -79,6 +86,7 @@ class CustomerSaleProductController extends Controller
                     $product->decrement('quantity', $quantity);
                 }
 
+
                 // Update sale total amount
                 $sale->update([
                     'total_amount' => $totalAmount,
@@ -86,14 +94,52 @@ class CustomerSaleProductController extends Controller
                 ]);
 
                 DB::commit();
-
+                 
                 $sale = Sale::where('id', '=', $sale->id)->with('products')->get()[0];
+
+            $vendors = $sale->vendors();
+                      // $vendors = Vendor::whereIn('id', $vendorIds)->get();
+                    $admins = User::where('user_type', 'Admin')->get();
+        //              // Notify each vendor
+        $sale->total = $sale->products->sum(function ($product) {
+    return $product->pivot->total ?? 0;
+});
+        foreach ($vendors as $vendor) {
+            $email = $vendor->email;
+            $vendorPhone = $vendor->phone;
+            $storeId = $vendor->store_id;
+
+            $phone = preg_replace('/^0/', '234', preg_replace('/\D/', '', $vendorPhone));
+            // send Laravel notification (email + database)
+            $vendor->notify(new VendorPurchaseNotification($sale, $email, $phone));
+
+            // send WhatsApp via helper (example shown below)
+            if (!empty($phone)) {
+                $message = "New order (#{$sale->id}) from customer #{$sale->customer_id}. Total: ₦" . number_format($sale->total_amount);
+                // WhatsAppHelper::sendWhatsappNotification($phone, $message);
+            }
+        }
+
+        // Notify all admins
+        foreach ($admins as $admin) {
+            $adminPhone = $admin->phone;
+            $phone = preg_replace('/^0/', '234', preg_replace('/\D/', '', $adminPhone));
+
+            $admin->notify(new AdminPurchaseNotification($sale, $admin->email, $phone));
+
+            // if (!empty($admin->phone)) {
+            //     WhatsAppHelper::sendWhatsappNotification($phone, "New sale (#{$sale->id}) completed. Total: ₦" . number_format($sale->total_amount));
+            // }
+        }
+         
 
                 return response()->json([
                     'status' => true,
                     'message' => 'Sale registered successfully',
                     'sale' => $sale,
                 ], 201);
+
+               
             } catch (\Exception $e) {
 
                 DB::rollBack();

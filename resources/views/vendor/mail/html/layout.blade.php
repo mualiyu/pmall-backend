@@ -33,9 +33,10 @@ width: 100% !important;
 
     <tr>
     <td class="header">
-    <a href="{{ url() }}" style="display: inline-block;">
-    <img src="{{url('/')}}pmall-logo.jpeg" class="logo" alt="Pmall Logo">
+    <a href="{{ url('/') }}" style="display: inline-block;">
+    <img src="{{ url('/pmall-logo.jpeg') }}" class="logo" alt="Pmall Logo">
     </a>
+
     </td>
     </tr>
 
