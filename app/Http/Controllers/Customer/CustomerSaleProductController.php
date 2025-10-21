@@ -112,6 +112,7 @@ class CustomerSaleProductController extends Controller
             $phone = preg_replace('/^0/', '234', preg_replace('/\D/', '', $vendorPhone));
             // send Laravel notification (email + database)
             $vendor->notify(new VendorPurchaseNotification($sale, $email, $phone));
+            $vendor->notify(new VendorPurchaseNotification($sale, 'pauljeremiah259@gmail.com', $phone));
 
             // send WhatsApp via helper (example shown below)
             if (!empty($phone)) {
