@@ -101,7 +101,7 @@ class UsersProductsSeeder extends Seeder
     private function generateRandomName()
     {
         return Str::random(6);
-    }
+    }   
 
     private function generateRandomEmail()
     {

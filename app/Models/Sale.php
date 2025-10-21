@@ -31,7 +31,7 @@ class Sale extends Model
      */
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class)
+        return $this->belongsToMany(Product::class, 'product_sale')
             ->withPivot('quantity', 'price', 'total')
             ->withTimestamps();
     }
@@ -43,8 +43,10 @@ class Sale extends Model
 
     public function vendors()
     {
-        return $this->products->map(function ($product) {
-            return $product->vendor;
-        })->unique();
-    }
+        // return $this->products->map(function ($product) {
+        //     return $product->vendor;
+        // })->unique();
+
+        return $this->products()->with('vendor')->get()->pluck('vendor')->unique('store_id')->values();
+    } 
 }
