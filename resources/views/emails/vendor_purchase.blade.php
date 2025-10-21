@@ -5,8 +5,8 @@
 
     <p>You have a new purchase on your store.</p>
 
-    <p><strong>Customer Email:</strong> {{ $email }}</p>
-    <p><strong>Customer Phone:</strong> {{ $phone }}</p>
+    <!-- <p><strong>Customer Email:</strong> {{ $email }}</p>
+    <p><strong>Customer Phone:</strong> {{ $phone }}</p> -->
 
     <table width="100%" cellpadding="5" cellspacing="0" border="1" style="border-collapse: collapse; margin-top: 15px;">
         <thead>
